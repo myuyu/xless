@@ -115,9 +115,16 @@ app.get("/examples", (req, res) => {
 app.all("/message", (req, res) => {
   var message = req.query.text || req.body.text
   const alert = generate_message_alert(message)
-  data = {form: {"payload": JSON.stringify({"username": "XLess", "mrkdwn": true, "text": alert}) }}
+  data = JSON.stringify({"username": "XLess", "mrkdwn": true, "text": alert})
+  var options = {
+    uri: process.env.SLACK_INCOMING_WEBHOOK,
+    method: 'POST',
+    json: true,
+    body: data
+}
+  
 
-  request.post(process.env.SLACK_INCOMING_WEBHOOK, data, (out)  => {
+  request.post(options, (out)  => {
     res.send("ok\n")
     res.end()
   });
@@ -152,9 +159,15 @@ app.post("/c", async (req, res) => {
     // Now handle the regular Slack alert
     data["Remote IP"] = req.headers["x-forwarded-for"] || req.connection.remoteAddress
     const alert = generate_blind_xss_alert(data)
-    data = {form: {"payload": JSON.stringify({"username": "XLess", "mrkdwn": true, "text": alert}) }}
+    data = JSON.stringify({"username": "XLess", "mrkdwn": true, "text": alert})
+    var options = {
+    uri: process.env.SLACK_INCOMING_WEBHOOK,
+    method: 'POST',
+    json: true,
+    body: data
+}
 
-    request.post(slack_incoming_webhook, data, (out)  => {
+    request.post(options, (out)  => {
       res.send("ok\n")
       res.end()
     });
